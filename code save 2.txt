@@ -1,0 +1,127 @@
+#:kivy 1.0
+
+<UserMain>:
+	name: 'UserMain'
+	
+	FloatLayout:
+		orientation: 'horizontal'
+		Button:
+			size_hint: None, None
+			size: 250, 50
+			pos: root.width - self.width, root.height - self.height
+
+			text:'Deslog'
+			on_press:
+				root.deslog()
+			
+		Tab:
+		
+
+			
+<Tab@TabbedPanel>:
+	id: tabbed_main
+	do_default_tab: False
+	TabbedPanelItem:
+		id:tabbed_docs
+		text:'Docs'	
+
+		BoxLayout:
+			AccordionArea:	
+			
+			FloatArea:
+				
+				
+	TabbedPanelItem:
+		id:confis
+		text:'Configs'
+		
+
+<AccordionArea@Accordion>:
+	id:acc_options_bar
+	size_hint: None, None
+	size: 300, 900
+	orientation: 'vertical'
+		
+	AccordionItem:
+		id:acc_docs
+		title:'Painel 1'
+		collapse: False						
+		orientation: 'vertical'
+		
+		ScrollView:
+			Table:
+				id:table_buttons
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+				
+	AccordionItem:
+		id:acc_panel
+		title:'Panel 2'
+	
+
+
+<FloatArea@FloatLayout>:
+	on_touch_down:
+		print(self.children)
+	canvas.before:
+		Color:
+			rgba: 1, 1, 1, 1
+		Rectangle:
+			pos: self.pos
+			size:self.size
+			
+	box:
+	
+
+<box@BoxLayout>:
+	id: box
+	orientation: vertical
+	canvas.before:
+		Color:
+			rgba: 1, 0, 1, 1
+		Rectangle:
+			pos: self.pos
+			size:self.size
+
+	
+
+
+		
+	
+<ScrollTxt@ScrollView>:
+
+
+	
+
+#:import RGBA kivy.utils.rgba
+<PDFDocumentWidget>:
+    viewclass: 'PDFPageWidget'
+    key_size: 'size'
+    # async load is buggy at the moment
+    # async_load: True
+    RecycleGridLayout:
+        spacing: 5
+        cols: root.cols
+        rows: root.rows
+        size_hint: None, None
+        size: self.minimum_size
+        default_size_hint: None, None
+<PDFPageWidget>:
+    size_hint: None, None
+    canvas.before:
+        Color:
+            rgba: RGBA('FFFFFF')
+        Rectangle:
+            size: self.size
+<PDFLabelWidget,PDFImageWidget>:
+    size_hint: None, None
+<PDFImageWidget>:
+    pos: self.bbox[:2]
+    size: self.bbox[2] - self.x, self.bbox[3] - self.y
+<PDFLabelWidget>:
+    text_size: self.width, None
+    height: self.texture_size[1]
+    color: RGBA('000000')
+    font_size: 8
+<PDFCurveWidget>:
