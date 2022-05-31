@@ -1,70 +1,153 @@
+import os
+from datetime import date
+
+from PyPDF2 import PdfFileReader
+from fitz import fitz
+
 from model.DocModel import DocModel
-# from unidecode import unidecode
 from string import Template
-from controller.Templates import Templates
+import time
+
+
+def decorator_teste(orig_func):
+    def wrapper_function():
+        start = time.time()
+        orig_func()
+        end = time.time()
+        print("time", end-start)
+    return wrapper_function
 
 
 class DocsManager:
     def __init__(self):
-        self.__documents = []
-        self.__primary_key = 0
-        self.templates = Templates()
+        self.__current_date = date.today().strftime("%d/%m/%Y")
+        self.__texts_dict, self.__doc_names, self.__dict_documents = self.create_dicts()
 
+        self.__pdf_dict = {"Crime": {"assalto": {}, "roubo": {}},
+                         "Oficio": {"teste_of": {}, "teste2": {}},
+                         "Procuracao": {"proc": {}, "proc_teste": {}}}
+        self.__pdf_path = ""
 
-    def create_model(self):
-        text = "teste"
-        doc = DocModel(text)
-        self.__documents.append(doc)
-        self.__primary_key += 1
+    # Create txt doc.
+    def create_documents(self, user):
+        text = ""
+        documents_counter = 0
 
-    def docs_pattern(self, user):
-        self.templates.texts(user)
+        for category, texts in self.__texts_dict.items():
+            for text_name in texts:
 
-        for i in range(len(self.templates.documents_names)):
-            self.templates.texts(user)
+                path = "Texts/" + category + "/" + text_name + ".txt"
+                # Load a .txt used as text of document
+                with open(path, encoding="utf-8" ) as fobj:
+                    for line in fobj:
+                        text += line
 
-            doc_name = self.templates.documents_names[i]
-            doc_text = self.templates.documents[i]
-            doc = DocModel(doc_name, doc_text)
-            self.__documents.append(doc)
+                    # Add text from txt to dict
+                    self.__texts_dict[category][text_name] = text
+                    # Add templates to text, (name, date...)
+                    text_in_template = self.add_template(self.__texts_dict[category][text_name], user)
+                    # Create a doc Object, params(category, document name, document content)
+                    doc = DocModel(category, self.__doc_names[category][documents_counter], text_in_template)
+                    # Add doc to a list of documents
+                    self.__dict_documents[doc.category][doc.name] = doc
 
-            #path = message + i.lower() + file_type
+                    # Used to get every single document name
+                    documents_counter += 1
+                    # Reset text aux
+                    text = ""
 
-            #with open(path) as f:
-            #    lines = f.readlines()
+            # Reset counter aux
+            documents_counter = 0
 
-            '''
-            for item in lines:
-                if "$name" in item:
-                    pass
-                string_line = "".join(str(item))
-            '''
+    def add_template(self, text, user):
+        template = Template( text )
+        template = template.substitute( name=user.user_data["name"], data=self.__current_date)
+        return template
 
-            #string_line = "".join(str(item) for item in lines)
+    def load_pdf(self, user):
+        for tab_name_str, button_names_dict in self.__pdf_dict.items():
+            for name_str in button_names_dict:
+                self.__pdf_dict[tab_name_str][name_str] = self.return_pdf()
 
+    def return_pdf(self):
+        pdf_data = {}
+        # Get document in folder.
+        source = os.path.abspath( "test.pdf" )
+        self.__pdf_path = source[:-4]
 
+        if not os.path.exists(self.__pdf_path):
+            os.mkdir(self.__pdf_path)
 
+        pages = self.getpdfpages(filename=source)
 
-    def load_docs(self, user):
-        self.docs_pattern(user)
+        for page_num in pages:
+            # get the pux from the pages
+            pix = pages[page_num][1]
+            # save pdf page image in pdfpath
+            fil = os.path.join(self.__pdf_path, f"outfile{page_num}.png")
+            # verify if img already exist, else create it.
+            pix.writePNG(fil) if not os.path.exists(fil) else None
+            # add image in the scrollview boxlayout
+            pdf_data[page_num] = fil
+
+        # Pdf_data - [page_number] = document_path
+        return pdf_data
+
+    @staticmethod
+    def getpdfpages(filename):
+        """Get pdf pages as bytes."""
+        FILEPATH = os.path.abspath(filename)
+        # get the quantity of pages
+        pdf = PdfFileReader(open(FILEPATH, 'rb'))
+        getNumPages = pdf.getNumPages()
+        pages = dict()
+        # open pdf file
+        doc = fitz.open(FILEPATH)
+
+        for pageNum in range(getNumPages):
+            # get the page by index
+            page = doc.load_page(pageNum)
+            # get byttes from image
+            pix = page.get_pixmap()
+            # remove the alpha channel 'cause fitz don't works with alpha
+            pix1 = fitz.Pixmap( pix, 0 ) if pix.alpha else pix  # PPM does not support transparency
+            # get image data in this case "ppm", but we can use "png", etc.
+            imgdata = pix1.tobytes(output="ppm")
+            pages[pageNum] = [imgdata, pix]
+        return pages
+
+    @staticmethod
+    def create_dicts():
+        text_dict = {"Crime": {"assalto": "", "roubo": ""},
+                     "Oficio": {"teste_of": "", "teste2": ""},
+                     "Procuracao": {"proc": "", "proc_teste": ""}}
+
+        doc_names = {"Crime": list(text_dict["Crime"] ),
+                     "Oficio": list(text_dict["Oficio"] ),
+                     "Procuracao": list(text_dict["Procuracao"] )}
+
+        docs_dict = {"Crime": {"assalto": DocModel, "roubo": DocModel},
+                     "Oficio": {"teste_of": DocModel, "teste2": DocModel},
+                     "Procuracao": {"proc": DocModel, "proc_teste": DocModel}}
+
+        return text_dict, doc_names, docs_dict
 
     @property
-    def documents(self):
-        return self.__documents
+    def dict_documents(self):
+        return self.__dict_documents
 
+    @property
+    def pdf_path(self):
+        return self.__pdf_path
 
-    def oficio(self, user):
-        text = Template(
+    @pdf_path.setter
+    def pdf_path(self, value):
+        self.__pdf_path = value
 
-            '''
-                Vimos por meio deste, solicitar a Vossa Senhoria, autorização para proceder a
-                doação dos bens discriminados nas TDIs/02 A e/ou B que consta neste protocolado, à
-                $name.
-                Justificamos a doação destes bens por não oferecerem condições de recuparação
-                e tão pouco por não oferecerem as condições necessárias para o uso e segurança.
-                Diante disto, a Comissão de Inservibilidade deste Estabelecimento de Ensino
-                considerou-os inservíveis.
+    @property
+    def pdf_dict(self):
+        return self.__pdf_dict
 
-            '''
-        )
-        return text.substitute(name=user)
+    @property
+    def doc_names(self):
+        return self.__doc_names

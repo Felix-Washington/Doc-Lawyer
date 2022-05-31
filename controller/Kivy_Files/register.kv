@@ -1,0 +1,88 @@
+#:set screen_size 1280, 960
+#:set register_box_size 500, 450
+#:set data_widget register_box_size[0], register_box_size[1]/9
+
+
+
+<Register>:
+	name: 'Register'
+
+	FloatLayout:
+		size: root.width, root.height
+		Image:
+			source: 'docs.jpg'
+			#allow_stretch: True
+			keep_ratio: True
+	
+		GridLayout:
+			id:grid_test
+			size_hint: None, None
+			size: register_box_size		
+			pos: (screen_size[0] - self.width)/2, (screen_size[1] - self.height)/2
+			canvas:
+				Color:
+					rgba: 0, 0, 1, .3
+				Rectangle:
+					pos: self.pos
+					size:self.size
+
+			cols: 1
+			Label:
+				id:empty_input_message
+				text: 'Registro:'
+				size_hint: None, None
+				pos: self.parent.pos[0] + self.parent.width - self.width, self.parent.pos[1] + self.parent.height - self.height
+				background_color: 1,0,0,1
+					
+			Box_texts:
+				id:box_texts
+				size: self.minimum_size
+				canvas:
+					Color:
+						rgba: 1, 0, 0, .3
+					Rectangle:
+						pos: self.pos
+						size:self.size
+					
+				RegisterTextInput:
+					text: "Nome"
+					size: data_widget
+						
+				RegisterTextInput:
+					text:'Último Nome'
+						
+				RegisterTextInput:
+					text:'Nome do Usuário'
+					
+				RegisterTextInput:
+					text:'Email'
+					
+				RegisterTextInput:
+					text:'Senha'
+					
+				RegisterTextInput:
+					text:'Confirme a Senha'
+					
+			RegisterButton:
+				text:'Registrar'
+				on_press:
+					root.get_data()
+					
+			RegisterButton:
+				text:'Voltar'
+				on_press:
+					root.back_to_login_screen()
+					
+				
+<RegisterButton@Button>:
+	font_size: 16
+	size_hint: None, None
+	size: data_widget[0], register_box_size[1]/9 / 2
+
+<RegisterTextInput@TextInput>:
+	size_hint: None, None
+	multiline: False
+	size: data_widget
+	
+	on_focus:
+		self.parent.get_data(self, self.pos[1] - self.parent.pos[1] + self.parent.spacing + self.height)
