@@ -1,9 +1,8 @@
-from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, StringProperty
-#from kivy.uix.textinput import TextInput
+from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.tabbedpanel import TabbedPanelItem
 
@@ -15,9 +14,6 @@ class TabConfigs(TabbedPanelItem):
         self.text = "Configs"
         self.__config_values = {"Font Size": 15, "Font": "Times", "Scatter": True, 'Current Tab': None}
         self._popup = None
-        #self.__mask_values = {self.height_child * 6: "Nome", self.height_child * 5: "Último Nome",
-        #                      self.height_child * 4: "Nome do Usuário", self.height_child * 3: "Email",
-        #                      self.height_child * 2: "Senha", self.height_child * 1: "Confirme a Senha"}
 
     def update_to_user(self, config_type, config_value):
         for widget in self.walk_reverse():
@@ -55,7 +51,6 @@ class TabConfigs(TabbedPanelItem):
                 widget.text = self.__mask_values[widget_pos]
             self.__data_values[widget_pos] = widget.text
 
-
     @property
     def config_values(self):
         return self.__config_values
@@ -77,22 +72,40 @@ class TextInputBox(BoxLayout):
 
         self.spacing = 5
         self.height_child = 50 + self.spacing
-        self.__mask_values = {self.height_child * 6: "", self.height_child * 5: "Último Nome",
-                              self.height_child * 4: "", self.height_child * 3: "Email",
-                              self.height_child * 2: "Senha", self.height_child * 1: "Confirme a Senha"}
+        self.__mask_values = {self.height_child * 5: "", self.height_child * 4: "",
+                              self.height_child * 3: "", self.height_child * 2: "Email",
+                              self.height_child * 1: "Senha"}
 
     def start_configs(self, user_configs):
-        print(user_configs)
-        for key, values in user_configs.items():
-            print(key, values)
-        self.__mask_values[self.height_child * 6] = user_configs["name"]
+        self.__mask_values[self.height_child * 5] = user_configs["login"]
+        self.__mask_values[self.height_child * 4] = user_configs["name"]
+        self.__mask_values[self.height_child * 3] = user_configs["last_name"]
+        self.__mask_values[self.height_child * 2] = user_configs["email"]
+        self.__mask_values[self.height_child * 1] = user_configs["pwd"]
+
+        for child in self.children:
+            child.text = self.__mask_values[child.pos[1]-545]
 
     def get_data(self, widget, widget_pos):
-        print(self.__mask_values)
         if widget.focus:
             if self.__mask_values[widget_pos] == widget.text:
                 widget.text = ""
         else:
             if widget.text == "":
                 widget.text = self.__mask_values[widget_pos]
-            #self.__data_values[widget_pos] = widget.text
+            # self.__data_values[widget_pos] = widget.text
+
+
+class BoxLabel(BoxLayout):
+    def __init__(self, **kwargs):
+        super().__init__( **kwargs )
+        self.orientation = "vertical"
+        self.create_labels()
+
+    def create_labels(self):
+        for i in range(5):
+            label = Label()
+            self.add_widget(label)
+        # print("size", self.children[0].size)
+        print("size", self.size)
+

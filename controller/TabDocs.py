@@ -1,11 +1,10 @@
-import os, fitz
+import os
 
-from PyPDF2 import PdfFileReader
 from kivy.factory import Factory
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, Clock, NumericProperty, StringProperty, BooleanProperty, ListProperty
+from kivy.properties import ObjectProperty, NumericProperty, StringProperty, BooleanProperty, ListProperty
 from kivy.uix import filechooser
-from kivy.uix.accordion import Accordion, AccordionItem
+from kivy.uix.accordion import Accordion
 from kivy.uix.behaviors import ButtonBehavior
 
 from kivy.uix.boxlayout import BoxLayout
@@ -14,7 +13,6 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 
 from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.tabbedpanel import TabbedPanelContent, TabbedPanelItem
 from fpdf import FPDF
@@ -33,7 +31,6 @@ class AccordionArea(Accordion):
         self.size_hint = None, None
         self.size = 300, 900
         self.orientation = 'vertical'
-
         # Color red hex: #B87575
 
     def create_itens(self, doc_names, pdf_docs):
@@ -41,24 +38,21 @@ class AccordionArea(Accordion):
         for category in doc_names.keys():
             # Rename panel itens with doc_categories.
             self.children[::-1][child_number].title = category
-
             # Put images in AccItems
             self.children[::-1][child_number].background_normal = "imgs/acc_item_default.png"
             self.children[::-1][child_number].background_selected = "imgs/acc_item_selected.png"
             child_number += 1
-
         # Open first acc item
         self.children[-1].collapse = False
 
         # Create buttons inside AccordionItems in their respective categories
         for child in reversed(self.children):
-
             for category, button_name in doc_names.items():
                 if child.title == category:
                     # Acess Grid_Buttons widget and create buttons.
                     child.children[0].children[0].children[0].children[0].children[0].create_buttons(pdf_docs[category])
+                    self.parent.children[0].children[0].children[0].create_pdf(pdf_docs[category])
 
-                    self.parent.children[0].children[0].children[0].create_pdf(button_name, pdf_docs[category])
 
 class Grid_Buttons( BoxLayout ):
     def __init__(self, **kwargs):
@@ -68,12 +62,10 @@ class Grid_Buttons( BoxLayout ):
         for button_name in pdf_docs:
             self.add_widget( Docs_Button(button_name, pdf_docs[button_name]))
 
-    def send_button_content(self, button_name, button_pdf_data):
+    def send_button_content(self, button_name):
         for widget in self.walk_reverse():
             if type(widget) == TabbedPanelContent:
-                #if str(type(widget.children[0].children[0].children[0].children[0])) == "<class 'controller.TabDocs.PdfView'>":
-                #widget.children[0].children[0].children[0].children[0].source = "test.pdf"
-                widget.children[0].children[0].children[0].children[0].update_pdf(button_pdf_data)
+                widget.children[0].children[0].children[0].children[0].update_pdf(button_name)
 
 
 class Docs_Button(ToggleButton):
@@ -86,7 +78,77 @@ class Docs_Button(ToggleButton):
         self.pdf_data = pdf
 
     def on_press(self):
-        self.parent.send_button_content(self.text, self.pdf_data)
+        self.parent.send_button_content(self.text)
+
+
+
+class PdfView(ScrollView):
+    source = StringProperty('')
+    pdfpath = StringProperty('')
+
+    def __init__(self, **kwargs):
+        super(PdfView, self).__init__(**kwargs)
+        self.do_scroll_x = False
+        self.do_scroll_y = True
+        self.always_overscroll = False
+        self.current_pdf = None
+        self.__box_pdf_pages = {}
+
+    def create_pdf(self, pdfs):
+        for doc_name, doc_path in pdfs.items():
+
+            self.children[0].create_pdf(doc_name, doc_path)
+
+
+    def update_pdf(self, pdf_data):
+
+        self.children[0].clear_widgets()
+        #for page_number, fil in pdf_data.items():
+        self.children[0].update(pdf_data)
+
+
+class BoxPdfPages(BoxLayout):
+    def __init__(self, **args):
+        super().__init__( **args )
+        self.orientation = "vertical"
+        self.size_hint = None, None
+        self.current_pdf = []
+        self.count = 0
+        self.__pdfs = {}
+        self.__pdf_size = {}
+
+    def create_pdf(self, button_name, pdf_pages_path):
+        self.__pdfs[button_name] = pdf_pages_path
+        self.__pdf_size[button_name] = len( pdf_pages_path.keys() )
+        #  Kwargs: source=fil, index=page_num
+        #pages = kwargs["pages"]
+        #for index, value in pages.items():
+            #pdf_page = PdfPage(self.size, index=index, source=value)
+            #self.current_pdf.append(pdf_page)
+            #self.add_widget(pdf_page)
+
+    def update(self, name):
+        self.size[1] = 870
+        document = self.__pdfs[name]
+        for index, value in document.items():
+            pdf = PdfPage(self.size, index=index, source=value)
+            print(value)
+            self.add_widget(pdf)
+        self.size[1] *= self.__pdf_size[name]
+
+
+class PdfPage(ButtonBehavior, Factory.Image):
+    index = NumericProperty()
+
+    def __init__(self, size, **kwargs):
+        super().__init__( **kwargs )
+        self.size_hint = None, None
+        self.keep_ratio = True
+        self.allow_stretch = True
+        self.size = size
+
+    def on_release(self, *args):
+        print(self.index)
 
 
 class GridAreaButtons(GridLayout):
@@ -98,23 +160,6 @@ class GridAreaButtons(GridLayout):
     def dismiss_popup(self):
         self._popup.dismiss()
 
-    def save_pdf(self):
-        pdf = FPDF()
-
-        # Add a page
-        pdf.add_page()
-
-        # set style and size of font
-        # that you want in the pdf
-        pdf.set_font( "Arial", size=15 )
-
-        # create a cell
-        # pdf.cell( 200, 10, txt="GeeksforGeeks",
-        #          ln=1, align='C' )
-
-        # save the pdf with name .pdf
-        pdf.output( "GFG.pdf" )
-
     def save(self, path, filename):
         try:
             assert os.path.isfile(path)
@@ -122,8 +167,7 @@ class GridAreaButtons(GridLayout):
                 stream.write( self.text_input.text )
 
         except Exception as e:
-            print (e)
-        # self.save_pdf()
+            print(e)
 
     def show_save(self):
         print(os.getcwd())
@@ -140,65 +184,3 @@ class SaveDialog(FloatLayout):
 
     def __init__(self, **kwargs):
         super().__init__( **kwargs )
-
-
-class PdfView(ScrollView):
-    source = StringProperty('')
-    pdfpath = StringProperty('')
-
-    def __init__(self, **kwargs):
-        super(PdfView, self).__init__(**kwargs)
-
-        self.do_scroll_x = False
-        self.do_scroll_y = True
-        self.always_overscroll = False
-        self.current_pdf = None
-        self.__box_pdf_pages = {}
-        #self.add_widget(self.current_pdf)
-
-    def create_pdf(self, doc_names, pdfs):
-        #self.__box_pdf_pages[doc_names] = pdfs
-        self.children[0].create_pdf()
-
-
-    def update_pdf(self, pdf_data):
-        self.children[0].clear_widgets()
-        #for page_number, fil in pdf_data.items():
-        #self.children[0].create_pdf(pages=pdf_data)
-
-
-class BoxPdfPages(BoxLayout):
-    def __init__(self, **args):
-        super().__init__( **args )
-        self.orientation = "vertical"
-        self.size_hint = None, None
-        self.current_pdf = []
-        self.count = 0
-        #self.children
-
-    def create_pdf(self, **kwargs):
-        #  Kwargs: source=fil, index=page_num
-        #pages = kwargs["pages"]
-        pass#print(kwargs)
-        #for index, value in pages.items():
-            #print(index, value)
-
-            #pdf_page = PdfPage(self.size, index=index, source=value)
-            #self.current_pdf.append(pdf_page)
-            #self.add_widget(pdf_page)
-        #
-
-
-class PdfPage(ButtonBehavior, Factory.Image):
-    index = NumericProperty()
-
-    def __init__(self, size, **kwargs):
-        super().__init__( **kwargs )
-
-        self.size_hint = None, None
-        self.keep_ratio = True
-        self.allow_stretch = True
-        self.size = size
-
-    def on_release(self, *args):
-        print(self.index)

@@ -15,26 +15,51 @@
 		
 		canvas.before:
 			Color:
-				rgba: 0, 1, .7, 1
+				rgba: 0, 1, .7, 0.3
 			Rectangle:
 				pos: self.pos
 				size:self.size
 		
 		
+		BoxLabel:
+		
+			size_hint:None,None
+			width: 200
+			#size:self.minimum_size
+			pos: 300, 80
+
+			
+			canvas:
+				Color:
+					rgba: 1, 0, .2, 0.6
+				Rectangle:
+					pos: self.pos
+					size:self.size
+		
+			on_touch_down:
+				print("size", self.size, "pos", self.pos)
+				#print(self.children)
 		TextInputBox:
 			id: text_input_box
 			pos: 500 - widget_config_size[0], 600
 			size: self.minimum_size
 			
-
+			
+			canvas.before:
+				Color:
+					rgba: 0, .3, .7, 1
+				Rectangle:
+					pos: self.pos
+					size:self.size
 			
 			UserDataTextInput:
+				disabled:True
 			UserDataTextInput:
 			UserDataTextInput:
 				text_validate_unfocus:False
 			UserDataTextInput:
 			UserDataTextInput:
-			UserDataTextInput:		
+				password: True
 			
 		
 		GridLayout:
@@ -102,6 +127,13 @@
 			BoxConfigs:
 				size: self.minimum_size
 			
+				canvas.before:
+					Color:
+						rgba: 0.6, 0.4, .7, 1
+					Rectangle:
+						pos: self.pos
+						size:self.size
+			
 				LabelConfigs:
 					id: input_font
 					size: 40, 100
@@ -161,3 +193,4 @@
 		#print(root)
 		#self.parent.get_data(self, self.parent.pos[1] + self.parent.spacing + self.height)
 		self.parent.get_data(self, self.pos[1] - self.parent.pos[1] + self.parent.spacing + self.height)
+		

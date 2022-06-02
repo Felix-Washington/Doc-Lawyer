@@ -5,12 +5,10 @@ from kivy.config import Config
 
 from kivy.uix.screenmanager import ScreenManager
 
-#from kivy.uix.textinput import TextInput
 from controller.DocsManager import DocsManager
 from controller.UserManagement import UserManagement
 from vision.Login import Login
 
-#from vision.Register import Register
 from controller.Register import Register
 from controller.UserMain import UserMain
 

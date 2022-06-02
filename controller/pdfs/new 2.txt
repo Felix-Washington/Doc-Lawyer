@@ -1,0 +1,28 @@
+#text in a scrol view	
+	BoxLayout:		
+		size_hint: None, None
+		size: root.size[0], (root.size[1]  - root.children[1].size[1]) + 60
+		
+		pos: root.pos
+		padding: 50, 50, 50, 0
+		
+		
+		canvas.before:
+			Color:
+				rgba: 0, 0, 0, .3
+			Rectangle:
+				pos: self.pos
+				size:self.size
+				
+		Page:
+			#size_hint: None, None
+			size: root.size
+			canvas.before:
+				Color:
+					rgba: 1, 1, 1, 1
+				Rectangle:
+					pos: self.pos
+					size:self.size
+
+			Text_Label:
+				size_hint: None, None
