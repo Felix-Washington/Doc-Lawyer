@@ -76,7 +76,6 @@ class DocsManager:
         # Get document in folder.
         pdf_list = ["teste", "Modelo_de_Procuracao__Pessoa_Fisica"]
         choice = random.choice(pdf_list)
-        #print(choice)
         source = os.path.abspath( f"pdfs/{choice}.pdf" )
 
         self.__pdf_path = os.path.abspath("pdfs/converted_imgs")

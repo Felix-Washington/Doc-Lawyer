@@ -100,12 +100,13 @@ class BoxLabel(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__( **kwargs )
         self.orientation = "vertical"
+        self.labels = {0: "Login", 1: "Nome", 2: "Último Nome", 3: "", 4: "Senha"}
+
         self.create_labels()
 
     def create_labels(self):
         for i in range(5):
-            label = Label()
+            label = Label(text=self.labels[i])
             self.add_widget(label)
-        # print("size", self.children[0].size)
         print("size", self.size)
 
