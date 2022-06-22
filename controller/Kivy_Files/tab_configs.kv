@@ -2,12 +2,14 @@
 #:set widget_config_size 300, 100
 
 <TabConfigs>:
+	# Load tab configs wheel icon.
 	canvas:
 		Rectangle:
 			source: 'imgs/configs_icon.png'
 			size: 40, 40
 			pos: self.pos
 
+	# Hold all tab configs content.
 	FloatLayout:	
 		size_hint: None, None
 		size: tab_config_content_size
@@ -19,65 +21,52 @@
 			Rectangle:
 				pos: self.pos
 				size:self.size
-		
-		
-		BoxLabel:
-		
-			size_hint:None,None
-			width: 200
-			#size:self.minimum_size
-			pos: 300, 80
 
-			
-			canvas:
-				Color:
-					rgba: 1, 0, .2, 0.6
-				Rectangle:
-					pos: self.pos
-					size:self.size
-		
-			on_touch_down:
-				print("size", self.size, "pos", self.pos)
-				#print(self.children)
-		TextInputBox:
-			id: text_input_box
-			pos: 500 - widget_config_size[0], 600
+		UserDataBox:
+			id: user_data_box
+			size_hint: None, None
 			size: self.minimum_size
+			pos: (tab_config_content_size[0]/2) - self.size[0]/2, 600
 			
 			
-			canvas.before:
-				Color:
-					rgba: 0, .3, .7, 1
-				Rectangle:
-					pos: self.pos
-					size:self.size
-			
-			UserDataTextInput:
-				disabled:True
-			UserDataTextInput:
-			UserDataTextInput:
-				text_validate_unfocus:False
-			UserDataTextInput:
-			UserDataTextInput:
-				password: True
-			
+			# Box used to hold all fields with user data.
+			TextInputBox:
+				id: text_input_box
+				size: self.minimum_size
+				
+				UserDataTextInput:
+					disabled:True
+				UserDataTextInput:
+				UserDataTextInput:
+					text_validate_unfocus:False
+				UserDataTextInput:
+				UserDataTextInput:
+					password: True
+				
+			# Labels to show to user what every field is.
+			BoxLabel:
+				id: box_label
+				size: text_input_box.size[0]/2, text_input_box.size[1] 
+				spacing: 5
+				on_touch_down:
+					#self.print_size()
+				canvas.after:
+					Color:
+						rgba: 1, 0, .2, 0.6
+					Rectangle:
+						pos: self.pos
+						size:self.size	
+					
 		
+		# Hold boxes with user configs.
 		GridLayout:
 			orientation:'lr-tb'
 			size_hint:None,None
 			cols: 3
-			pos: 100, 300
 			size: self.minimum_size
+			pos: (tab_config_content_size[0] / 2) - (self.width/2), 200
 			
-			canvas.before:
-				Color:
-					rgba: 0, .3, .7, 1
-				Rectangle:
-					pos: self.pos
-					size:self.size
-
-			
-			
+			# Config Labels
 			BoxConfigs:
 				size: self.minimum_size
 				
@@ -99,31 +88,33 @@
 					text: 'Fonte: '
 					font_size: s1.value
 			
-			
+			# Widgets used to change configs.
 			BoxConfigs:
-				size: self.minimum_size			
+				size: self.minimum_size
+				canvas.before:
+					Color:
+						rgba: 0, .3, .7, 1
+					Rectangle:
+						pos: self.pos
+						size:self.size
+				
 				Slider:
 					id: s1
 					size_hint: None, None
 					size: widget_config_size
 					range: 10, 50
 					step: 1
-					#value: root.config_values['Font Size']
-					on_touch_move:
-						root.update_to_user('Font Size',self.value)
 
 				Switch:
 					id:switch_scatter
 					size_hint: None, None
 					size: widget_config_size
-					on_touch_down:
-						root.update_to_user('Scatter', self.active)
 						
 				Widget:
 					size_hint: None, None
 					size: widget_config_size
 			
-			# Label number BoxConfigs
+			# Label complement.
 			BoxConfigs:
 				size: self.minimum_size
 			
@@ -143,28 +134,40 @@
 					size: 40, 100
 				LabelConfigs:
 					
+		# Change to default values.
+		BoxLayout:
+			Button:
+				size_hint: None, None
+				size: 200, 100
+				text: 'Configuracao Padrao'
+				on_press:
+					root.create_popup_save()
+					
+			Button:
+				size_hint: None, None
+				size: 200, 100
+				text: 'Salvar'
+				on_press:
+					root.save()
 
-		Button:
-			size_hint: None, None
-			size: 200, 100
-			text: 'Configuracao Padrao'
-			on_press:
-				root.create_popup_save()
 
+		LabelConfigs:
+			id: label_feedback
+			text: ""
+			pos: 900, 100
+			font_size: s1.value
+			bold: True
+			color: 1,0,0,1
+			
 
 <LabelConfigs@Label>:
 	size_hint: None, None
 	width: 200
 	#size: 40, 100
-	on_touch_down:
-		#print(self.parent)
 	
 <BoxConfigs@BoxLayout>:
 	size_hint: None, None
 	orientation: 'vertical'
-	on_touch_down:
-		#print("size", self.size, "pos", self.pos)
-
 					
 <ConfirmConfigs>:
 	size_hint: None, None
@@ -176,12 +179,12 @@
 		Button:
 			text:'Sim'
 			on_press:
-				root.save_changes(True)
+				root.set_default_configs(True)
 		
 		Button:
 			text:'Nao'			
 			on_press:
-				root.save_changes(False)
+				root.set_default_configs(False)
 				
 				
 				
@@ -190,7 +193,4 @@
 	size: 300, 50
 	multiline: False
 	on_focus:
-		#print(root)
-		#self.parent.get_data(self, self.parent.pos[1] + self.parent.spacing + self.height)
-		self.parent.get_data(self, self.pos[1] - self.parent.pos[1] + self.parent.spacing + self.height)
-		
+		self.parent.get_new_user_data(self)

@@ -81,7 +81,6 @@ class Docs_Button(ToggleButton):
         self.parent.send_button_content(self.text)
 
 
-
 class PdfView(ScrollView):
     source = StringProperty('')
     pdfpath = StringProperty('')
@@ -96,14 +95,11 @@ class PdfView(ScrollView):
 
     def create_pdf(self, pdfs):
         for doc_name, doc_path in pdfs.items():
-
             self.children[0].create_pdf(doc_name, doc_path)
 
-
     def update_pdf(self, pdf_data):
-
         self.children[0].clear_widgets()
-        #for page_number, fil in pdf_data.items():
+        # for page_number, fil in pdf_data.items():
         self.children[0].update(pdf_data)
 
 
@@ -121,18 +117,12 @@ class BoxPdfPages(BoxLayout):
         self.__pdfs[button_name] = pdf_pages_path
         self.__pdf_size[button_name] = len( pdf_pages_path.keys() )
         #  Kwargs: source=fil, index=page_num
-        #pages = kwargs["pages"]
-        #for index, value in pages.items():
-            #pdf_page = PdfPage(self.size, index=index, source=value)
-            #self.current_pdf.append(pdf_page)
-            #self.add_widget(pdf_page)
 
     def update(self, name):
         self.size[1] = 870
         document = self.__pdfs[name]
         for index, value in document.items():
             pdf = PdfPage(self.size, index=index, source=value)
-            print(value)
             self.add_widget(pdf)
         self.size[1] *= self.__pdf_size[name]
 
@@ -148,8 +138,8 @@ class PdfPage(ButtonBehavior, Factory.Image):
         self.size = size
 
     def on_release(self, *args):
-        print(self.index)
-
+        # print(self.index)
+        pass
 
 class GridAreaButtons(GridLayout):
     def __init__(self, **kwargs):
@@ -164,7 +154,7 @@ class GridAreaButtons(GridLayout):
         try:
             assert os.path.isfile(path)
             with open( os.path.join( path), 'w' ) as stream:
-                stream.write( self.text_input.text )
+                stream.write(filename)
 
         except Exception as e:
             print(e)

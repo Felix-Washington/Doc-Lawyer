@@ -1,5 +1,7 @@
 from controller.TabConfigs import TabConfigs
 from controller.TabDocs import TabDocs
+from controller.TabTutorial import TabTutorial
+from controller.TabContact import TabContact
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 from kivy.uix.tabbedpanel import TabbedPanel
@@ -25,7 +27,6 @@ class UserMain( Screen ):
         for widget in self.walk():
             if str(type(widget)) == "<class 'controller.TabDocs.AccordionArea'>":
                 for wid in widget.walk():
-                    #print( wid )
                     if str(type(wid)) == "<class 'controller.TabDocs.Docs_Button'>":
                         pass
                     if str(type(wid)) == "<class 'controller.TabDocs.GridButtons'>":
@@ -39,8 +40,10 @@ class Tab(TabbedPanel):
         super().__init__( **kwargs )
 
     def update_user_current_screen(self):
-        pass
-        #self.parent.parent.manager.update_configs("Current Tab"self.get_current_tab())
+        for tab in self.tab_list:
+            if tab.state == "normal":
+                pass
+                #self.parent.parent.manager.update_configs({"current_tab": str(tab)})
 '''
         import tkinter as tk
         from tkinter import ttk

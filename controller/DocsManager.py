@@ -105,7 +105,6 @@ class DocsManager:
         get_num_pages = pdf.getNumPages()
         pages = dict()
         # open pdf file
-        print("filepath", filepath)
         doc = fitz.open( filepath )
 
         for pageNum in range( get_num_pages ):

@@ -3,7 +3,6 @@
 #:set data_widget register_box_size[0], register_box_size[1]/9
 
 
-
 <Register>:
 	name: 'Register'
 
@@ -15,9 +14,10 @@
 			keep_ratio: True
 	
 		GridLayout:
-			id:grid_test
 			size_hint: None, None
-			size: register_box_size		
+			size: register_box_size
+			height: self.minimum_height
+			spacing: 20
 			pos: (screen_size[0] - self.width)/2, (screen_size[1] - self.height)/2
 			canvas:
 				Color:
@@ -26,27 +26,31 @@
 					pos: self.pos
 					size:self.size
 
-			cols: 1
-			Label:
-				id:empty_input_message
-				text: 'Registro:'
+			rows: 3
+			BoxLayout
+				orientation: 'vertical'
 				size_hint: None, None
-				pos: self.parent.pos[0] + self.parent.width - self.width, self.parent.pos[1] + self.parent.height - self.height
-				background_color: 1,0,0,1
-					
-			Box_texts:
-				id:box_texts
-				size: self.minimum_size
+				width: self.parent.width
+				height: self.minimum_height
 				canvas:
 					Color:
-						rgba: 1, 0, 0, .3
+						rgba: 1, 0, 1, .3
 					Rectangle:
 						pos: self.pos
 						size:self.size
+				
+				Label:
+					text: 'Registro:'
+					size_hint: None, None
+					pos: self.parent.pos[0] + self.parent.width - self.width, self.parent.pos[1] + self.parent.height - self.height
+
+					
+			Box_texts:
+				id: box_texts
+				size: self.minimum_size
 					
 				RegisterTextInput:
 					text: "Nome"
-					size: data_widget
 						
 				RegisterTextInput:
 					text:'Último Nome'
@@ -63,15 +67,19 @@
 				RegisterTextInput:
 					text:'Confirme a Senha'
 					
-			RegisterButton:
-				text:'Registrar'
-				on_press:
-					root.get_data()
-					
-			RegisterButton:
-				text:'Voltar'
-				on_press:
-					root.back_to_login_screen()
+			BoxLayout:
+				orientation: 'vertical'
+				size_hint: None, None
+				size: self.minimum_size
+				RegisterButton:
+					text:'Registrar'
+					on_press:
+						root.get_data()
+						
+				RegisterButton:
+					text:'Voltar'
+					on_press:
+						root.back_to_login_screen()
 					
 				
 <RegisterButton@Button>:

@@ -2,7 +2,6 @@ from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import Screen
 
-
 class Register(Screen):
     def __init__(self, **kw):
         super().__init__( **kw )
@@ -48,6 +47,7 @@ class Register(Screen):
             if str( type( child ) ) == "<class 'controller.Register.Box_texts'>":
                 child.reset_values()
                 self.manager.change_screen( "Register", "Login" )
+                break
 
 
 class Box_texts(BoxLayout):
@@ -55,7 +55,6 @@ class Box_texts(BoxLayout):
         super().__init__( **kwargs )
         self.orientation = "vertical"
         self.size_hint = None, None
-        self.size = self.minimum_size
         self.spacing = 5
         self.height_child = 50 + self.spacing
         self.__mask_values = {self.height_child * 6: "Nome", self.height_child * 5: "Último Nome",

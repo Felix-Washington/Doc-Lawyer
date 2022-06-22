@@ -1,28 +1,26 @@
-#:kivy 1.0
 
 <UserMain>:
 	name: 'UserMain'
-	
+	main_tab: main_tab
 	FloatLayout:
 		orientation: 'horizontal'
 		Button:
 			size_hint: None, None
 			size: 250, 50
 			pos: root.width - self.width, root.height - self.height
-
 			text:'Deslog'
+			
 			on_press:
-				print(self.parent.children[0].current_tab)
 				root.deslog()
 			
 		Tab:
+			id: main_tab
 		
-
 			
 <Tab>:
-	#docs:docs
 	configs:configs
 	do_default_tab: False
+	#tab_width: 40
 	
 	on_touch_down:
 		self.update_user_current_screen()
@@ -32,4 +30,9 @@
 			
 	TabConfigs:
 		id:configs
+		
+	TabTutorial:
+		id:tutorial
 
+	TabContact:
+		id:contact

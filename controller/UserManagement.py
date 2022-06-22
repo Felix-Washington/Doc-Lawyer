@@ -31,25 +31,25 @@ class UserManagement:
     def remove_user(self):
         pass
 
-    # For tests only.
-    def account_data(self):
-        self.__users_dict["Feef"] = User({"name": "Feef", "last_name": "", "login": "Feef", "email": "",
-                                          "pwd": "321", "type": 0, "first_login": True})
-        self.__users_dict["Felix"] = User({"name": "Felix", "last_name": "", "login": "Felix", "email": "",
-                                           "pwd": "321", "type": 0, "first_login": True})
-        self.__users_dict["1"] = User({"name": "Sussi", "last_name": "", "login": "1", "email": "",
-                                       "pwd": "1", "type": 0, "first_login": True})
+    def update_user_personal_configs(self, dict_data):
+        for key, value in dict_data.items():
+            self.__current_user.personal_configs[key] = value
 
-    def update_user(self, configs):
-        for key, value in configs.items():
-            # Change value of current user.
+        # Get current user login
+        current_login = self.__current_user.user_data["login"]
+
+        # Search for user in dicts by current user login and set new value.
+        self.__users_dict[current_login].personal_configs = self.__current_user.personal_configs
+
+    def update_user_data(self, dict_data):
+        for key, value in dict_data.items():
             self.__current_user.user_data[key] = value
 
             # Get current user login
             current_login = self.__current_user.user_data["login"]
 
             # Search for user in dicts by current user login and set new value.
-            self.__users_dict[current_login].user_data[key] = value
+            self.__users_dict[current_login].user_data = self.__current_user.user_data
 
     def get_user_data(self, data):
         if type(data) == str:
@@ -67,3 +67,11 @@ class UserManagement:
         self.__current_user = current_user
 
 
+    # For tests only.
+    def account_data(self):
+        self.__users_dict["Feef"] = User({"name": "Feef", "last_name": "", "login": "Feef", "email": "peppepjanj",
+                                          "pwd": "321", "type": 0, "first_login": True, 'current_tab': None})
+        self.__users_dict["Felix"] = User({"name": "Felix", "last_name": "", "login": "Felix", "email": "peppepjanj",
+                                           "pwd": "321", "type": 0, "first_login": True, 'current_tab': None})
+        self.__users_dict["1"] = User({"name": "Sussi", "last_name": "", "login": "1", "email": "peppepjanj",
+                                       "pwd": "1", "type": 0, "first_login": True, 'current_tab': None})
