@@ -5,7 +5,7 @@ from kivy.config import Config
 
 from kivy.uix.screenmanager import ScreenManager
 
-#from kivy.uix.textinput import TextInput
+# from kivy.uix.textinput import TextInput
 from controller.DocsManager import DocsManager
 from controller.UserManagement import UserManagement
 
@@ -55,8 +55,7 @@ class WindowManager(ScreenManager):
 
     def call_create_pdfs(self):
         user = self.__user_manager.current_user
-        #self.__docs_manager.create_documents( user )
-        self.__docs_manager.load_pdf( user )
+        self.__docs_manager.check_user_signature(user.user_data)
 
     def call_add_user(self, new_user_data):
         return self.__user_manager.add_user(new_user_data)

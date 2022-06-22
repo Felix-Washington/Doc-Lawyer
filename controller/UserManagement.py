@@ -66,7 +66,6 @@ class UserManagement:
     def current_user(self, current_user):
         self.__current_user = current_user
 
-
     # For tests only.
     def account_data(self):
         self.__users_dict["Feef"] = User({"name": "Feef", "last_name": "", "login": "Feef", "email": "peppepjanj",
@@ -74,4 +73,4 @@ class UserManagement:
         self.__users_dict["Felix"] = User({"name": "Felix", "last_name": "", "login": "Felix", "email": "peppepjanj",
                                            "pwd": "321", "type": 0, "first_login": True, 'current_tab': None})
         self.__users_dict["1"] = User({"name": "Sussi", "last_name": "", "login": "1", "email": "peppepjanj",
-                                       "pwd": "1", "type": 0, "first_login": True, 'current_tab': None})
+                                       "pwd": "1", "type": "common", "first_login": True, 'current_tab': None})
