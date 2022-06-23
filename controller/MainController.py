@@ -1,11 +1,12 @@
+
+from kivy.clock import Clock
 from kivy.properties import NumericProperty
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.config import Config
-
+from functools import partial
 from kivy.uix.screenmanager import ScreenManager
 
-# from kivy.uix.textinput import TextInput
 from controller.DocsManager import DocsManager
 from controller.UserManagement import UserManagement
 
@@ -28,16 +29,18 @@ class WindowManager(ScreenManager):
     # Call functions section: used to execute functions from other classes.
     '''**********************************************************************************'''
     def call_create_doc_buttons(self):
-        for widget in self.walk():
-            if str(type(widget)) == "<class 'controller.TabDocs.AccordionArea'>":
-                widget.create_itens(self.__docs_manager.doc_names, self.__docs_manager.pdf_dict)
+        for widget in self.get_screen("UserMain").walk():
+            if str( type( widget ) ) == "<class 'controller.TabDocs.AccordionArea'>":
+                widget.create_itens( self.__docs_manager.doc_names, self.__docs_manager.pdf_dict)
                 break
 
     def call_search_user(self, login_data):
         # Send login/pwd to UserManager
         if self.__user_manager.search_user(login_data):
             self.change_screen("Login", "UserMain")
+            #Clock.schedule_once(partial(self.change_screen, "Login", "UserMain"), 0.2 )
             self.set_config_values()
+
             return True
         else:
             return False
@@ -46,7 +49,6 @@ class WindowManager(ScreenManager):
         for widget in self.walk():
             if str( type( widget ) ) == "<class 'controller.TabConfigs.TabConfigs'>":
                 widget.start_config_values(user_data, user_config)
-                break
 
     def call_update_configs(self, user_data, user_configs):
         # Send dict changed values to update user in user_manager.
@@ -77,7 +79,7 @@ class WindowManager(ScreenManager):
         self.perspective_point_x = self.width/2
         self.perspective_point_y = self.height * 0.75
 
-    def change_screen(self, current_screen, next_screen):
+    def change_screen(self, current_screen, next_screen, *args):
         if current_screen == "Login":
             if next_screen == "UserMain":
                 self.current = "UserMain"
@@ -100,10 +102,11 @@ class WindowManager(ScreenManager):
 
             # Create docs based on user
             self.call_create_pdfs()
-            self.call_create_doc_buttons()
+        self.call_create_doc_buttons()
 
-            # Get current user personal configs
+        # Get current user personal configs
         user_data, user_configs = self.get_user_personal_configs()
+
         self.call_start_config_values( user_data, user_configs )
 
     # Deslog from current user.
@@ -112,11 +115,18 @@ class WindowManager(ScreenManager):
         self.__user_manager.current_user = None
 
 
+def set_size(dt):
+    Config.set( 'graphics', 'width', 1280 )
+    Config.set( 'graphics', 'height', 960 )
+    print("teste clo")
+
+
 class MainController(App):
     Config.set( 'input', 'mouse', 'mouse,multitouch_on_demand' )
     Config.set( 'kivy', 'exit_on_escape', '0' )
     Config.set( 'graphics', 'width', 1280 )
     Config.set( 'graphics', 'height', 960 )
+    # Clock.schedule_interval(set_size, 0.5)
 
     def build(self):
         self.title = "Doc Lawyer"

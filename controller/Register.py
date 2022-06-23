@@ -1,5 +1,9 @@
+from kivy.graphics import Ellipse, Color, Rectangle
 from kivy.lang import Builder
+from kivy.properties import ListProperty
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 
 class Register(Screen):
@@ -48,6 +52,42 @@ class Register(Screen):
                 child.reset_values()
                 self.manager.change_screen( "Register", "Login" )
                 break
+
+
+class CustomRegisterButton(ButtonBehavior, Label):
+    color = ListProperty([0.1, 0.5, 0.7, 1])
+    color_pressed = ListProperty([0.1, 0.5, 0.1, 1])
+
+    def __int__(self, **kwargs):
+        super(CustomRegisterButton, self).__init__(**kwargs)
+        self.size_hint = None, None
+        self.font_size = 16
+        self.update()
+
+    def on_pos(self, *args):
+        self.update()
+
+    def on_size(self, *args):
+        self.update()
+
+
+    def on_press(self, *args):
+        self.color, self.color_pressed = self.color_pressed, self.color
+        print( self.text )
+
+    def on_release(self, *args):
+        self.color, self.color_pressed = self.color_pressed, self.color
+
+    def on_color(self, *args):
+        self.update()
+
+    def update(self, *args):
+        self.canvas.before.clear()
+        with self.canvas.before:
+            Color( rgba=self.color)
+            Ellipse( size=(self.height, self.height), pos=self.pos )
+            Ellipse( size=(self.height, self.height), pos=(self.x + self.width - self.height, self.y) )
+            Rectangle( size=(self.width - self.height, self.height), pos=(self.x + self.height / 2, self.y) )
 
 
 class Box_texts(BoxLayout):

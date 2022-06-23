@@ -26,12 +26,11 @@ class UserMain( Screen ):
     def deslog(self):
         for widget in self.walk():
             if str(type(widget)) == "<class 'controller.TabDocs.AccordionArea'>":
-                for wid in widget.walk():
-                    if str(type(wid)) == "<class 'controller.TabDocs.Docs_Button'>":
-                        pass
-                    if str(type(wid)) == "<class 'controller.TabDocs.GridButtons'>":
-                        print("grid buttons")
-                        pass
+
+                for acc_item in widget.children:
+                    acc_item.clear_widgets()
+
+
         self.manager.deslog()
 
 

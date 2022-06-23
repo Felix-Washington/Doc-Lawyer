@@ -28,32 +28,32 @@ class DocsManager:
                              "Procuracao": {"proc": "", "proc_teste": ""}}
 
         # Get document names and link to respective category key.
-        self.__doc_names = {"Crime": list( self.__texts_dict["Crime"] ),
-                            "Oficio": list( self.__texts_dict["Oficio"] ),
-                            "Procuracao": list( self.__texts_dict["Procuracao"] )}
+        self.__doc_names = {}
 
-        self.__pdf_dict = {"Crime": {"assalto": {}, "roubo": {}},
-                           "Oficio": {"teste_of": {}, "teste2": {}},
-                           "Procuracao": {"proc": {}, "proc_teste": {}}}
+        self.__pdf_dict = {}
         self.__pdf_path = ""
 
         # Relation of signatures and documents. How it works:
         # Signature type > Document category > document name.
         self.docs_in_signature = {"common":
-                                      {"Crime": {"assalto"},
-                                       "Oficio": {"teste_of"},
-                                       "Procuracao": {"proc"}},
-                                  "master":
-                                      {"Crime": {"assalto", "roubo"},
-                                       "Oficio": {"teste_of", "teste2"},
-                                       "Procuracao": {"proc", "proc_teste"}
-                                       }}
+                                  {"Crime": {"assalto": ""},
+                                   "Oficio": {"teste_of": ""},
+                                   "Procuracao": {"proc": ""}
+                                   }, "master":
+                                  {"Crime": {"assalto": "", "roubo": ""},
+                                   "Oficio": {"teste_of": "", "teste2": ""},
+                                   "Procuracao": {"proc": "", "proc_teste": ""}
+                                   }}
 
     def check_user_signature(self, user_data):
         user_signature = self.docs_in_signature[user_data["type"]]
         for key, values in user_signature.items():
             for doc_name in values:
+                # Insert category to dict avoiding a Key Error.
+                self.__pdf_dict[key] = values
                 self.__pdf_dict[key][doc_name] = self.return_pdf()
+
+            self.__doc_names[key] = list(values)
 
     # Pdf section: functions used for pdf.
     '''**********************************************************************************'''
@@ -110,10 +110,6 @@ class DocsManager:
 
     # Getters and setters.
     '''**********************************************************************************'''
-
-    @property
-    def dict_documents(self):
-        return self.__dict_documents
 
     @property
     def pdf_path(self):

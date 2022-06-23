@@ -1,4 +1,6 @@
 from kivy.animation import Animation
+from kivy.clock import Clock
+from functools import partial
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
@@ -10,7 +12,7 @@ from kivy.uix.tabbedpanel import TabbedPanelItem
 
 class TabConfigs(TabbedPanelItem):
     def __init__(self, **kwargs):
-        super().__init__( **kwargs )
+        super(TabbedPanelItem, self).__init__( **kwargs )
         Builder.load_file( "Kivy_Files/tab_configs.kv" )
         self.text = "Configs"
         self.tab_width = 40
@@ -25,12 +27,7 @@ class TabConfigs(TabbedPanelItem):
 
     def update_to_user(self, user_data, user_configs):
         self.parent.parent.parent.parent.parent.parent.manager.call_update_configs(user_data, user_configs)
-        '''
-        for widget in self.walk_reverse():
-            if str(type(widget)) == "<class 'controller.UserMain.UserMain'>":
-                widget.manager.call_update_configs(user_data, user_configs)
-                break
-        '''
+
     def save(self):
         # Acess user main
         new_user_data, user_personal_configs = {}, {}
@@ -43,13 +40,7 @@ class TabConfigs(TabbedPanelItem):
             self.ids.label_feedback.text = "Configurações atualizadas."
         else:
             self.ids.label_feedback.text = "Preencha os campos obrigatórios"
-            '''
-            test = Label(text="teste", hidden=True )
-            def hide_label(w):
-                w.hidden = True
 
-            Animation( opacity=0, duration=1, on_complete=hide_label ).start(test)
-            '''
 
         self.update_to_user(new_user_data, user_personal_configs)
 
@@ -57,9 +48,16 @@ class TabConfigs(TabbedPanelItem):
         if change:
             self.ids.s1.value = self.__default_config_values['font_size']
             self.ids.switch_scatter.active = self.__default_config_values['Scatter']
+            self.ids.label_feedback.opacity = 1
             self.ids.label_feedback.text = "Configurações restauradas para padrão."
 
+            Clock.schedule_once( partial(self.set_opacity_on_label, self.ids.label_feedback), 5 )
         self._popup.dismiss()
+
+    def set_opacity_on_label(self, label, *args):
+        label.opacity = 1
+        anim = Animation(opacity=0, duration= 3)
+        anim.start(label)
 
     def create_popup_save(self):
         content = ConfirmConfigs(set_default_configs=self.set_default_configs)

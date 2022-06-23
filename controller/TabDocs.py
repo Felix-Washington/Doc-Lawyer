@@ -16,23 +16,38 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.popup import Popup
 from kivy.uix.tabbedpanel import TabbedPanelContent, TabbedPanelItem
 from fpdf import FPDF
+import time
 
 
-class TabDocs(TabbedPanelItem):
+def decorator_teste(*args, **kwargs):
+    def wrapper_function(*args, orig_func, **kwargs):
+        start = time.time()
+        orig_func()
+        end = time.time()
+        print( "time", end - start )
+
+    return wrapper_function
+
+
+class TabDocs( TabbedPanelItem ):
     def __init__(self, **kwargs):
         super().__init__( **kwargs )
         self.text = 'Docs'
         Builder.load_file( "Kivy_Files/tab_docs.kv" )
 
+    def call_create_itens(self, doc_names, pdf_docs):
+        self.ids.acc_area.create_itens( doc_names, pdf_docs )
 
-class AccordionArea(Accordion):
+
+class AccordionArea( Accordion ):
     def __init__(self, **kwargs):
-        super( AccordionArea, self ).__init__( **kwargs )
+        super().__init__( **kwargs )
         self.size_hint = None, None
         self.size = 300, 900
         self.orientation = 'vertical'
         # Color red hex: #B87575
 
+    # @decorator_teste
     def create_itens(self, doc_names, pdf_docs):
         child_number = 0
         for category in doc_names.keys():
@@ -45,13 +60,17 @@ class AccordionArea(Accordion):
         # Open first acc item
         self.children[-1].collapse = False
 
+        self.create_buttons_in_acc_items( doc_names, pdf_docs )
+
+    def create_buttons_in_acc_items(self, doc_names, pdf_docs):
         # Create buttons inside AccordionItems in their respective categories
-        for child in reversed(self.children):
-            for category, button_name in doc_names.items():
+        for child in reversed( self.children ):
+            for category, value in pdf_docs.items():
                 if child.title == category:
-                    # Acess Grid_Buttons widget and create buttons.
-                    child.children[0].children[0].children[0].children[0].children[0].create_buttons(pdf_docs[category])
-                    self.parent.children[0].children[0].children[0].create_pdf(pdf_docs[category])
+
+                    child.children[0].children[0].children[0].children[0].children[0].create_buttons(
+                        pdf_docs[category] )
+                    self.parent.children[0].children[0].children[0].create_pdf( pdf_docs[category] )
 
 
 class Grid_Buttons( BoxLayout ):
@@ -60,15 +79,19 @@ class Grid_Buttons( BoxLayout ):
 
     def create_buttons(self, pdf_docs):
         for button_name in pdf_docs:
-            self.add_widget( Docs_Button(button_name, pdf_docs[button_name]))
+            self.add_widget( Docs_Button( button_name, pdf_docs[button_name] ) )
 
     def send_button_content(self, button_name):
         for widget in self.walk_reverse():
-            if type(widget) == TabbedPanelContent:
-                widget.children[0].children[0].children[0].children[0].update_pdf(button_name)
+            if type( widget ) == TabbedPanelContent:
+                widget.children[0].children[0].children[0].children[0].update_pdf( button_name )
 
+    def teste(self):
+        print(self.children)
 
-class Docs_Button(ToggleButton):
+class Docs_Button( ToggleButton ):
+    enabled = BooleanProperty
+
     def __init__(self, button_name, pdf, **kwargs):
         super( Docs_Button, self ).__init__( **kwargs )
         self.size_hint = None, None
@@ -81,12 +104,12 @@ class Docs_Button(ToggleButton):
         self.parent.send_button_content(self.text)
 
 
-class PdfView(ScrollView):
-    source = StringProperty('')
-    pdfpath = StringProperty('')
+class PdfView( ScrollView ):
+    source = StringProperty( '' )
+    pdfpath = StringProperty( '' )
 
     def __init__(self, **kwargs):
-        super(PdfView, self).__init__(**kwargs)
+        super( PdfView, self ).__init__( **kwargs )
         self.do_scroll_x = False
         self.do_scroll_y = True
         self.always_overscroll = False
@@ -95,15 +118,15 @@ class PdfView(ScrollView):
 
     def create_pdf(self, pdfs):
         for doc_name, doc_path in pdfs.items():
-            self.children[0].create_pdf(doc_name, doc_path)
+            self.children[0].create_pdf( doc_name, doc_path )
 
     def update_pdf(self, pdf_data):
         self.children[0].clear_widgets()
         # for page_number, fil in pdf_data.items():
-        self.children[0].update(pdf_data)
+        self.children[0].update( pdf_data )
 
 
-class BoxPdfPages(BoxLayout):
+class BoxPdfPages( BoxLayout ):
     def __init__(self, **args):
         super().__init__( **args )
         self.orientation = "vertical"
@@ -122,12 +145,12 @@ class BoxPdfPages(BoxLayout):
         self.size[1] = 870
         document = self.__pdfs[name]
         for index, value in document.items():
-            pdf = PdfPage(self.size, index=index, source=value)
-            self.add_widget(pdf)
+            pdf = PdfPage( self.size, index=index, source=value )
+            self.add_widget( pdf )
         self.size[1] *= self.__pdf_size[name]
 
 
-class PdfPage(ButtonBehavior, Factory.Image):
+class PdfPage( ButtonBehavior, Factory.Image ):
     index = NumericProperty()
 
     def __init__(self, size, **kwargs):
@@ -141,7 +164,8 @@ class PdfPage(ButtonBehavior, Factory.Image):
         # print(self.index)
         pass
 
-class GridAreaButtons(GridLayout):
+
+class GridAreaButtons( GridLayout ):
     def __init__(self, **kwargs):
         super().__init__( **kwargs )
         self.size_hint = None, None
@@ -150,24 +174,25 @@ class GridAreaButtons(GridLayout):
     def dismiss_popup(self):
         self._popup.dismiss()
 
+
     def save(self, path, filename):
         try:
-            assert os.path.isfile(path)
-            with open( os.path.join( path), 'w' ) as stream:
-                stream.write(filename)
+            assert os.path.isfile( path )
+            with open( os.path.join( path ), 'w' ) as stream:
+                stream.write( filename )
 
         except Exception as e:
-            print(e)
+            print( e )
 
     def show_save(self):
-        print(os.getcwd())
+        print( os.getcwd() )
         content = SaveDialog( save=self.save, cancel=self.dismiss_popup )
         self._popup = Popup( title="Escolha a pasta", content=content,
                              size_hint=(None, None), size=(500, 500) )
         self._popup.open()
 
 
-class SaveDialog(FloatLayout):
+class SaveDialog( FloatLayout ):
     cancel = ObjectProperty()
     save = ObjectProperty()
     text_input = ObjectProperty()

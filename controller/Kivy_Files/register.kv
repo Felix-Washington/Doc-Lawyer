@@ -68,19 +68,27 @@
 					text:'Confirme a Senha'
 					
 			BoxLayout:
+				spacing: 10
 				orientation: 'vertical'
 				size_hint: None, None
 				size: self.minimum_size
-				RegisterButton:
+				CustomRegisterButton:
 					text:'Registrar'
 					on_press:
 						root.get_data()
 						
-				RegisterButton:
+				CustomRegisterButton:
+					
 					text:'Voltar'
 					on_press:
 						root.back_to_login_screen()
 					
+
+<CustomRegisterButton@ButtonBehavior+Label>
+	#font_size: 16
+	size_hint: None, None
+	size: data_widget[0], register_box_size[1]/9 / 2
+	
 				
 <RegisterButton@Button>:
 	font_size: 16
