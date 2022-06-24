@@ -50,7 +50,11 @@ class AccordionArea( Accordion ):
     # @decorator_teste
     def create_itens(self, doc_names, pdf_docs):
         child_number = 0
+        #for category in doc_names.keys():
+        #    acc_item = AccordionCategories
+
         for category in doc_names.keys():
+            print( category )
             # Rename panel itens with doc_categories.
             self.children[::-1][child_number].title = category
             # Put images in AccItems
@@ -65,9 +69,9 @@ class AccordionArea( Accordion ):
     def create_buttons_in_acc_items(self, doc_names, pdf_docs):
         # Create buttons inside AccordionItems in their respective categories
         for child in reversed( self.children ):
+
             for category, value in pdf_docs.items():
                 if child.title == category:
-
                     child.children[0].children[0].children[0].children[0].children[0].create_buttons(
                         pdf_docs[category] )
                     self.parent.children[0].children[0].children[0].create_pdf( pdf_docs[category] )
@@ -168,12 +172,9 @@ class PdfPage( ButtonBehavior, Factory.Image ):
 class GridAreaButtons( GridLayout ):
     def __init__(self, **kwargs):
         super().__init__( **kwargs )
-        self.size_hint = None, None
-        self.cols = 3
 
     def dismiss_popup(self):
         self._popup.dismiss()
-
 
     def save(self, path, filename):
         try:
@@ -198,4 +199,4 @@ class SaveDialog( FloatLayout ):
     text_input = ObjectProperty()
 
     def __init__(self, **kwargs):
-        super().__init__( **kwargs )
+        super(SaveDialog, self).__init__( **kwargs )

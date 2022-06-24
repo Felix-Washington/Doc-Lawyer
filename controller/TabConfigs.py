@@ -1,8 +1,11 @@
 from kivy.animation import Animation
 from kivy.clock import Clock
 from functools import partial
+
+from kivy.graphics import Ellipse, Color, Rectangle
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, ListProperty
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
@@ -31,27 +34,28 @@ class TabConfigs(TabbedPanelItem):
     def save(self):
         # Acess user main
         new_user_data, user_personal_configs = {}, {}
+        self.ids.label_feedback.opacity = 1
         if self.ids.text_input_box.check_required_fields():
             new_user_data = self.ids.text_input_box.child_pos
             font_size = self.ids.s1.value
             scatter = self.ids.switch_scatter.active
             user_personal_configs = {"font_size": font_size, "scatter": scatter}
-
             self.ids.label_feedback.text = "Configurações atualizadas."
+
         else:
             self.ids.label_feedback.text = "Preencha os campos obrigatórios"
 
-
+        Clock.schedule_once( partial( self.set_opacity_on_label, self.ids.label_feedback ), 3 )
         self.update_to_user(new_user_data, user_personal_configs)
 
     def set_default_configs(self, change):
         if change:
             self.ids.s1.value = self.__default_config_values['font_size']
             self.ids.switch_scatter.active = self.__default_config_values['Scatter']
-            self.ids.label_feedback.opacity = 1
             self.ids.label_feedback.text = "Configurações restauradas para padrão."
+            self.ids.label_feedback.opacity = 1
+            Clock.schedule_once( partial(self.set_opacity_on_label, self.ids.label_feedback), 3 )
 
-            Clock.schedule_once( partial(self.set_opacity_on_label, self.ids.label_feedback), 5 )
         self._popup.dismiss()
 
     def set_opacity_on_label(self, label, *args):
@@ -65,18 +69,13 @@ class TabConfigs(TabbedPanelItem):
                              size_hint=(None, None), size=(200, 200), pos=(100, 100), auto_dismiss=False)
         self._popup.open()
 
-
-class ConfirmConfigs(FloatLayout):
-    set_default_configs = ObjectProperty()
-
-
 class UserDataBox (BoxLayout):
     def __int__(self, **kwargs):
         super().__init__(**kwargs)
 
     def set_labels(self, user_data):
         labels = {0: "login", 1: "name", 2: "last_name", 3: "email", 4: "pwd"}
-        self.children[1].start_configs(user_data, labels)
+        self.children[0].start_configs(user_data, labels)
 
 
 class TextInputBox(BoxLayout):
@@ -152,3 +151,42 @@ class BoxLabel(BoxLayout):
     def print_size(self):
         for i in self.children:
             print(i.size, i.pos, i.text)
+
+
+class ConfirmConfigs(FloatLayout):
+    set_default_configs = ObjectProperty()
+
+
+class PopUpCustomButton(ButtonBehavior, Label):
+    color = ListProperty([0.1, 0.5, 0.7, 1])
+    color_pressed = ListProperty([0.1, 0, 0, 1])
+
+    def __int__(self, **kwargs):
+        super(PopUpCustomButton, self).__init__(**kwargs)
+        self.size_hint = None, None
+        self.font_size = 16
+        self.update()
+
+    def on_pos(self, *args):
+        self.update()
+
+    def on_size(self, *args):
+        self.update()
+
+    def on_press(self, *args):
+        self.color, self.color_pressed = self.color_pressed, self.color
+
+    def on_release(self, *args):
+        self.color, self.color_pressed = self.color_pressed, self.color
+
+    def on_color(self, *args):
+        self.update()
+
+    def update(self, *args):
+        self.canvas.before.clear()
+
+        with self.canvas.before:
+            Color( rgba=self.color)
+            Ellipse( size=(self.height, self.height), pos=self.pos )
+            Ellipse( size=(self.height, self.height), pos=(self.x + self.width - self.height, self.y) )
+            Rectangle( size=(self.width - self.height, self.height), pos=(self.x + self.height / 2, self.y) )

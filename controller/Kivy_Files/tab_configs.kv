@@ -11,23 +11,20 @@
 
 	# Hold all tab configs content.
 	FloatLayout:	
-		size_hint: None, None
-		size: tab_config_content_size
-		pos: root.pos
-		
-		canvas.before:
-			Color:
-				rgba: 0, 1, .7, 0.3
-			Rectangle:
-				pos: self.pos
-				size:self.size
 
+		#--------------------------Section-------------------------#
 		UserDataBox:
 			id: user_data_box
 			size_hint: None, None
 			size: self.minimum_size
-			pos: (tab_config_content_size[0]/2) - self.size[0]/2, 600
+			pos: (self.parent.width/2) - self.size[0]/2, 600
 			
+			# Labels to show to user what every field is.
+			BoxLabel:
+				id: box_label
+				size: text_input_box.size[0]/2, text_input_box.size[1] 
+				spacing: 5
+				padding: 1			
 			
 			# Box used to hold all fields with user data.
 			TextInputBox:
@@ -43,27 +40,14 @@
 				UserDataTextInput:
 					password: True
 				
-			# Labels to show to user what every field is.
-			BoxLabel:
-				id: box_label
-				size: text_input_box.size[0]/2, text_input_box.size[1] 
-				spacing: 5
-				on_touch_down:
-					#self.print_size()
-				canvas.after:
-					Color:
-						rgba: 1, 0, .2, 0.6
-					Rectangle:
-						pos: self.pos
-						size:self.size	
 					
-		
+		#--------------------------Section-------------------------#
 		# Hold boxes with user configs.
 		GridLayout:
 			orientation:'lr-tb'
 			size_hint:None,None
-			cols: 3
 			size: self.minimum_size
+			cols: 3
 			pos: (tab_config_content_size[0] / 2) - (self.width/2), 200
 			
 			# Config Labels
@@ -78,7 +62,6 @@
 						size:self.size
 
 				LabelConfigs:
-					id:label_font
 					text: 'Fonte: '	
 					font_size: s1.value					
 				LabelConfigs:
@@ -90,66 +73,53 @@
 			
 			# Widgets used to change configs.
 			BoxConfigs:
-				size: self.minimum_size
-				canvas.before:
-					Color:
-						rgba: 0, .3, .7, 1
-					Rectangle:
-						pos: self.pos
-						size:self.size
+				size: 300, 300
 				
-				Slider:
-					id: s1
-					size_hint: None, None
-					size: widget_config_size
-					range: 10, 50
-					step: 1
+				BoxLayout:
+					size_hint_y: None
+					height: 100
+					spacing: 5
 
+					Slider:
+						id: s1
+						size_hint_x: None
+						width: self.parent.width - input_font.width
+						range: 10, 50
+						step: 1
+						
+					Label:
+						id: input_font
+						size_hint: None, None
+						size: 30, 100
+						text: '{}'.format(int(s1.value))
+						
 				Switch:
 					id:switch_scatter
 					size_hint: None, None
 					size: widget_config_size
 						
-				Widget:
+				Spinner:
+					text:'Arial'
+					values: {'Test','Times','Other'}
 					size_hint: None, None
 					size: widget_config_size
-			
-			# Label complement.
-			BoxConfigs:
-				size: self.minimum_size
-			
-				canvas.before:
-					Color:
-						rgba: 0.6, 0.4, .7, 1
-					Rectangle:
-						pos: self.pos
-						size:self.size
-			
-				LabelConfigs:
-					id: input_font
-					size: 40, 100
-					text: '{}'.format(int(s1.value))
-		
-				LabelConfigs:
-					size: 40, 100
-				LabelConfigs:
-					
-		# Change to default values.
+
+		#--------------------------Section-------------------------#
 		BoxLayout:
+			size_hint: None, None
+			size: 400, 100
+			
+			# Change to default values.
 			Button:
-				size_hint: None, None
-				size: 200, 100
 				text: 'Configuracao Padrao'
 				on_press:
 					root.create_popup_save()
-					
+			
+			# Save new configs.
 			Button:
-				size_hint: None, None
-				size: 200, 100
 				text: 'Salvar'
 				on_press:
 					root.save()
-
 
 		LabelConfigs:
 			id: label_feedback
@@ -160,28 +130,30 @@
 			color: 1,0,0,1
 			
 
+#-------------------------------------------Custom Widgets------------------------------------------#
+
 <LabelConfigs@Label>:
 	size_hint: None, None
 	width: 200
-	#size: 40, 100
 	
 <BoxConfigs@BoxLayout>:
 	size_hint: None, None
 	orientation: 'vertical'
 					
 <ConfirmConfigs>:
-	size_hint: None, None
-	size: 100, 40
-	#pos: root.pos[0] + root.width - self.width, root.pos[1] + root.height + 5	
+	size_hint_y: None
+	height: 20
 
 	BoxLayout:
 		pos: root.pos
-		Button:
+		spacing: 5
+		
+		PopUpCustomButton:
 			text:'Sim'
 			on_press:
 				root.set_default_configs(True)
 		
-		Button:
+		PopUpCustomButton:
 			text:'Nao'			
 			on_press:
 				root.set_default_configs(False)

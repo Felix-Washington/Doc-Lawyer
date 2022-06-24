@@ -1,3 +1,7 @@
+from functools import partial
+
+from kivy.animation import Animation
+from kivy.clock import Clock
 from kivy.graphics import Ellipse, Color, Rectangle
 from kivy.lang import Builder
 from kivy.properties import ListProperty
@@ -5,6 +9,7 @@ from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
+
 
 class Register(Screen):
     def __init__(self, **kw):
@@ -40,11 +45,15 @@ class Register(Screen):
                 if condition:
                     self.return_to_manager(data)
                 else:
-                    for child_two in child.parent.children:
-                        if str(type(child_two)) == "<class 'kivy.uix.label.Label'>":
-                            child_two.text = "Campos obrigatorios"
-                            break
+                    self.ids.label_feedback.opacity = 1
+                    self.ids.label_register_feedback.text = "Preencha os campos obrigatórios"
+                    Clock.schedule_once( partial( self.set_fade_on_label, self.ids.label_register_feedback ), 3 )
                 break
+
+    def set_fade_on_label(self, label, *args):
+        anim = Animation(opacity=0, duration= 3)
+        anim.start(label)
+
 
     def back_to_login_screen(self):
         for child in self.walk():
@@ -55,13 +64,11 @@ class Register(Screen):
 
 
 class CustomRegisterButton(ButtonBehavior, Label):
-    color = ListProperty([0.1, 0.5, 0.7, 1])
-    color_pressed = ListProperty([0.1, 0.5, 0.1, 1])
+    color = ListProperty([1, 0, 0, 1])
+    color_pressed = ListProperty([0.1, 0.1, 0.1, 1])
 
     def __int__(self, **kwargs):
         super(CustomRegisterButton, self).__init__(**kwargs)
-        self.size_hint = None, None
-        self.font_size = 16
         self.update()
 
     def on_pos(self, *args):
@@ -70,10 +77,8 @@ class CustomRegisterButton(ButtonBehavior, Label):
     def on_size(self, *args):
         self.update()
 
-
     def on_press(self, *args):
         self.color, self.color_pressed = self.color_pressed, self.color
-        print( self.text )
 
     def on_release(self, *args):
         self.color, self.color_pressed = self.color_pressed, self.color
@@ -84,7 +89,7 @@ class CustomRegisterButton(ButtonBehavior, Label):
     def update(self, *args):
         self.canvas.before.clear()
         with self.canvas.before:
-            Color( rgba=self.color)
+            Color(rgba=self.color, g=1)
             Ellipse( size=(self.height, self.height), pos=self.pos )
             Ellipse( size=(self.height, self.height), pos=(self.x + self.width - self.height, self.y) )
             Rectangle( size=(self.width - self.height, self.height), pos=(self.x + self.height / 2, self.y) )

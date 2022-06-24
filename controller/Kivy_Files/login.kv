@@ -1,41 +1,50 @@
 #:set login_screen_size 1280, 960
-#:set widget_login_size 500, 50
-#:set login_center_x login_screen_size[0] / 2 - (widget_login_size[0] / 2)
+#:set login_center_x login_screen_size[0] / 2 - (500 / 2)
 #:set login_center_y login_screen_size[1] / 2 - (250 / 2)
 
 <Login>:
 	name:'Login'
 	
 	FloatLayout:
-		size_hint: None, None
-		size: login_screen_size
-		
 		BoxLayout:
 			size_hint: None, None
-			pos: login_center_x, login_center_y
+			size: 400, 400
+			pos: login_center_x, login_center_y 
 			spacing: 10
-			orientation: 'vertical'
+			orientation:'vertical'
 		
-			Label:
-				size_hint: None, None
-				id:wrong_input
-				text: ''
-				size: widget_login_size
-				font_size: 30
-				italic: True
-				color: 1,0,0,1
+			canvas.before:
+				Rectangle:
+					pos:self.pos
+					size:self.size
+					source: 'imgs/register_background.jpg'
+					
+			HoldWidgetBoxLayout:
+				height: 50
+			
+				Label:
+					id:wrong_input
+					text: 'TESTE'
+					font_size: 30
+					italic: True
+					color: 1,0,0,1
+					
+			HoldWidgetBoxLayout:
+				height: 100
 				
-			LoginTextInput:
-				id:input_login
-			LoginTextInput:
-				id:input_password
+			HoldWidgetBoxLayout:
+				orientation:'vertical'
+				LoginTextInput:
+					id:input_login
+				LoginTextInput:
+					id:input_password
 	
-			BoxLayout:
-				size_hint: None, None
-				size: widget_login_size
+			HoldWidgetBoxLayout:
+				height: 50
+				
 				
 				StrokeButton:
-					back_color: (0.157, 0.455, 0.753, 1.0)
+					#back_color: (0.157, 0.455, 0.753, 1.0)
 					on_press:
 						root.submit_login(input_login.text, input_password.text)
 					
@@ -45,29 +54,36 @@
 						root.focus: False
 						root.clean()
 					
-			RoundedButton
-				on_press:
-					root.register()	
-		
-<LoginButton@Button>:
-	font_size: 16
-	size_hint: None, None
-	size: 250, widget_login_size[1]
-
+					
+			HoldWidgetBoxLayout:
+				orientation: 'vertical'
+				height: 60
+				padding: 0,0,0,5
+			
+				RoundedButton:
+					text: 'Cadastre-se'
+					on_press:
+						root.register()	
+	
+				RoundedButton:
+					text: 'Sair'
+					on_press:
+						
+	
+#-------------------------------------------Custom Widgets------------------------------------------#
+	
+<HoldWidgetBoxLayout@BoxLayout>
+	size_hint_y: None 
+	spacing: 10
+	
 <LoginTextInput@TextInput>:
-	size_hint: None, None
-	size: widget_login_size
 	write_tab: False
 	multiline: False
 	text: '1'
 	on_focus:
-		self.parent.parent.parent.check_data(self)			
+		self.parent.parent.parent.parent.check_data(self)			
 			
 <RoundedButton@ButtonBehavior+Label>:
-	text: 'Cadastre-se'
-	size_hint: None, None
-	size: widget_login_size
-
 	canvas.before:
 		Color:
 			rgba: 1, 0.3, .7, 1
@@ -84,8 +100,6 @@
 <SmoothButton@Button>:
 	font_size: 16
 	text: 'Limpar'
-	size_hint: None, None
-	size: 250, widget_login_size[1]
 	background_color: (0, 0, 0, 0)
 	background_normal: ''
 	back_color: (1,0,1,1)
@@ -98,18 +112,14 @@
 			pos: self.pos
 			radius: self.border_radius
 			
-	
-		
 <StrokeButton@Button>:
 	font_size: 16
 	text: 'Prosseguir'
-	size_hint: None, None
-	size: 250, widget_login_size[1]
 	background_color: (0, 0, 0, 0)
 	background_normal: ''
-	back_color: (1,1,1,1)
+	back_color: (0,1,1,1)
 	border_radius: 18
-	color: self.back_color
+	#color: self.back_color
 
 	bold: True
 	canvas.before:
